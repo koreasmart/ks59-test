@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.common.mapper.CommonMapper">
+
+	<!-- ResultMap : 반환되는 데이터의 컬럼명과 바인딩할 객체의 필드명을 매핑  -->
+	<resultMap type="mybatis.common.dto.CommonCode" id="commonResultMap">
+		<!-- id : pk 컬럼 매핑 -->
+		<id 	column="comm_group_cd" 	property="commonGroupCode" />
+		<id 	column="comm_cd" 		property="commonCode" />
+		<!-- result : pk 이외의 컬럼과 매핑 -->
+		<result column="comm_group_nm" 	property="commonGroupCodeName" />
+		<result column="comm_nm" 		property="commonCodeName" />
+	</resultMap>
+	
+	<select id="findAllByGroupCode" parameterType="String" resultMap="commonResultMap">
+		/* 공통코드 조회 */
+		SELECT 
+			 cgc.comm_group_cd
+			,cgc.comm_group_nm 
+			,cc.comm_cd 
+			,cc.comm_nm 
+		FROM 
+			comm_group_code cgc INNER JOIN comm_code cc 
+			USING(comm_group_cd)
+		WHERE 
+			cgc.comm_group_cd = #{groupCode};
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

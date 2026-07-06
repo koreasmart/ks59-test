@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.order.mapper.OrderMapper">
+	<delete id="deleteOrderIsNotExistsOrderItems">
+		/* 주문상세 데이터가 없는 주문번호 삭제 */
+		DELETE  
+			o
+		FROM 
+			orders o LEFT JOIN  orderitems oi 
+			USING (order_no)
+		WHERE 
+			oi.order_item IS NULL;
+	</delete>
+
+	<delete id="deleteOrderItemsByProductCode">
+		/* 상품번호로 주문상세 삭제 */
+		DELETE 
+			oi
+		FROM 
+			products p INNER JOIN orderitems oi 
+			ON p.prod_cd = oi.order_prod_cd 
+		WHERE 
+			p.prod_cd = #{productCode};
+	</delete>
+</mapper>

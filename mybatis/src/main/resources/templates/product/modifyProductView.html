@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/default}">
+	
+	<head>
+		<meta name="description" content="한국스마트정보교육원 ksmybatis" />
+	</head>
+	
+	<th:block layout:fragment="jsScript">
+		<script type="text/javascript">
+			
+			// 상품수정
+			$('#modifyProductBtn').click(e => {
+				// 태그가 가지고 있는 기본동작 중단
+				e.preventDefault();
+				
+				$('#modifyProductForm').submit();
+				
+			});
+		</script>
+	</th:block>
+	
+	<!-- 추가할 페이지 contents -->
+	<th:block layout:fragment="contents">
+		<div class="content-header">
+			<div>
+				<h2 class="content-title card-title">상품수정</h2>
+			</div>
+		</div>
+        <div class="card mb-4 row col-lg-6">
+        	<form id="modifyProductForm" th:action="@{/product/modifyProduct}" method="post">
+	            <header class="card-header">
+	                <div class="row gx-5 justify-content-end">
+	                    <div class="col-lg-5 ms-auto d-flex justify-content-between">
+	                        <button type="submit" id="modifyProductBtn" class="btn btn-success text-white">상품수정</button>
+	                        <button type="reset" id="resetBtn" class="btn btn-warning text-white">등록취소</button>
+	                    </div>
+	                </div>
+	            </header>
+	            <!-- card-header end// -->
+	            <div class="card-body" th:object="${productInfo}">
+	                <div class="row">
+	                    <div class="col-md-4">
+	                        <h6 class="fs-5">1. 필수입력항목</h6>
+	                    </div>
+	                    <div class="col-md-8">
+	                    	<div class="row mb-4">	         
+	                        	<div class="row align-items-end">
+	                        		<div class="col-md-12">		   
+	                        			<input type="hidden" id="productCode" name="productCode" th:value="*{productCode}" />                     		
+			                            <label class="form-label fs-6 fw-bold">상품명</label>
+				                        <input type="text" placeholder="상품명을 입력해주세요" class="form-control"
+				                        	   id="productName" name="productName" th:value="*{productName}" >
+	                        		</div>
+	                        	</div>
+	                    	</div>
+	                    	<div class="row mb-4">	         
+	                        	<div class="row align-items-end">
+	                        		<div class="col-md-12">		                        		
+			                            <label class="form-label fs-6 fw-bold">거래처</label>
+			                            <select class="form-select text-center" id="vendorCode" name="vendorCode">
+			                                <option value=""> === 거래처을 선택해주세요 === </option>
+			                                <option th:if="${not #lists.isEmpty(vendorList)}"
+			                                		th:each="l : ${vendorList}"
+			                                		th:value="${l.vendorCode}"
+			                                		th:text="${l.vendorName}"
+			                                		th:selected="${l.vendorCode} eq *{vendorCode}">
+			                                </option>
+			                            </select>
+	                        		</div>
+	                        	</div>
+	                    	</div>
+	                    	<div class="row mb-4">	         
+	                        	<div class="row align-items-end">
+	                        		<div class="col-md-12">		                        		
+			                            <label class="form-label fs-6 fw-bold">상품가격</label>
+				                        <input type="number" placeholder="상품가격을 입력해주세요" class="form-control"
+				                        	   id="productUnitPrice" name="productUnitPrice" th:value="*{productUnitPrice}">
+	                        		</div>
+	                        	</div>
+	                    	</div>
+	                    </div> <!-- col.// -->
+	                </div>
+	            </div>
+        	</form>
+            <!-- card-body end// -->
+        </div>
+	</th:block>
+
+</html>
+
+
+
+
+
+
+
+
+
+

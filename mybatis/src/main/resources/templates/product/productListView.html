@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--/* 동적페이지 작성시 생성한 layout 적용 */-->
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/default}">
+
+	<!--/* 적용된 layout 기준으로 추가할 태그를 작성 head 영역 추가시 head태그 작성후 자식노드 삽입 */-->
+	<head>
+		<meta name="description" content="한국스마트정보교육원"/>
+	</head>
+	
+	<!--/* 개발시 추가할 스크립트 파일 영역 정의 */-->
+    <th:block layout:fragment="jsFile">
+    	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    	<script src="https://cdn.jsdelivr.net/npm/axios@1.18.1/dist/axios.min.js"></script>
+    </th:block>
+    
+    <!--/* 개발시 추가할 스크립트 코드 영역 정의 */-->
+    <th:block layout:fragment="jsScript">
+    	<script type="text/javascript">
+			$('.del-btn').click( e => {
+				// 기본동작 중단
+				e.preventDefault();
+				Swal.fire({
+					title: "상품삭제",
+					text: "정말로 상품삭제하시겠습니까?",
+					icon: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#3085d6",
+					cancelButtonColor: "#d33",
+					confirmButtonText: "상품삭제",
+					cancelButtonText: "삭제취소",
+				}).then( async (result) => {
+					// 탈퇴취소 버튼 클릭시 모달 활성화
+					if (result.isDismissed) {
+						Swal.fire({
+							title: "삭제취소",
+							icon: "error"
+						});
+						return ;
+					}
+					
+					const productCode = $(e.target).data('productCode');
+					
+					if(!productCode) return ;
+					
+					// productCode : prod_1
+					/*
+						{
+							'productCode' : productCode
+						}
+						=> { productCode } 
+					*/
+					const payload = { 
+						data : { productCode } 
+					}
+					
+					const headers = {
+						'headers' : {
+							'Content-Type' : 'application/json'
+						}
+					}
+					
+					// sweetalert 설정 객체생성
+					const sweetConfig = {
+						title : '삭제실패',
+						icon : 'error'
+					}
+					
+					// 상품삭제 ajax 요청
+					const response = await axios.delete(`/api/product/${productCode}`);
+					const isDelete = response.data;
+					if(isDelete){
+						sweetConfig.title = '삭제완료';
+						sweetConfig.text = '상품 삭제 처리가 완료되었습니다.';
+						sweetConfig.icon = 'success';
+					}
+					
+					Swal.fire(sweetConfig).then(result => location.reload());
+					
+				});
+			});
+		</script>
+    </th:block>
+	
+	<!-- 작성된 layout에 추가할 영역(th:block layout:fragment) 작성후 추가할 자식노드 삽입 -->
+	<th:block layout:fragment="contents">
+		<div class="content-header">
+           <div>
+               <h2 class="content-title card-title">상품관리</h2>
+               <p>상품목록조회</p>
+           </div>
+       	</div>
+        <div class="card mb-4">
+	        <header class="card-header">
+	            <div class="row gx-3">
+	                <div class="col-lg-4 col-md-6 me-auto">
+	                    <input type="text" placeholder="Search..." class="form-control" />
+	                </div>
+	                <div class="col-lg-2 col-6 col-md-3">
+	                    <select class="form-select">
+	                        <option>Status</option>
+	                        <option>Active</option>
+	                        <option>Disabled</option>
+	                        <option>Show all</option>
+	                    </select>
+	                </div>
+	                <div class="col-lg-2 col-6 col-md-3">
+	                    <select class="form-select">
+	                        <option>Show 20</option>
+	                        <option>Show 30</option>
+	                        <option>Show 40</option>
+	                    </select>
+	                </div>
+	            </div>
+	        </header>
+	        <!-- card-header end// -->
+	        <div class="card-body">
+	            <div class="table-responsive">
+	                <table class="table table-hover text-center">
+	                    <thead>
+	                        <tr>
+	                            <th scope="col">상품코드</th>
+	                            <th scope="col">판매처코드</th>
+	                            <th scope="col">상품명</th>
+	                            <th scope="col">상품가격</th>
+	                            <th scope="col">상품등록일자</th>
+	                            <th scope="col">수정</th>
+	                            <th scope="col">삭제</th>
+	                        </tr>
+	                    </thead>
+	                    <tbody>
+	                        <tr th:if="${not #lists.isEmpty(productList)}"
+	                        	th:each="l : ${productList}">
+	                            <td th:text="${l.productCode}"></td>
+	                            <td th:text="${l.vendorCode}"></td>
+	                            <td th:text="${l.productName}"></td>
+	                            <td th:text="${l.productUnitPrice}"></td>
+	                            <td th:text="${l.productRegDate}"></td>
+	                            <td>
+	                            	<a th:href="@{/product/modifyProduct(productCode=${l.productCode})}"
+	                            	   class="btn btn-sm btn-warning text-white">수정</a>
+	                            </td>
+	                            <td>
+	                            	<a th:href="@{#}"
+	                            	   th:data-product-code="${l.productCode}"
+	                            	   class="btn btn-sm btn-danger text-white del-btn">삭제</a>
+	                            </td>
+	                        </tr>
+	                        <tr th:unless="${not #lists.isEmpty(productList)}">
+	                        	<td colspan="7">등록된 상품이 없습니다.</td>
+	                        </tr>
+	                    </tbody>
+	                </table>
+	            </div>
+	            <!-- table-responsive //end -->
+	        </div>
+	        <!-- card-body end// -->
+	    </div>
+	    <!-- card end// -->
+	</th:block>
+	
+	
+</html>
+
+
+
+
+
+
+
+
+
+
+

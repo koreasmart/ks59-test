@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.member.mapper.MemberMapper">
+	<resultMap type="mybatis.member.domain.Member" id="memberResultMap">
+		<id  	column="mbr_id" 		property="memberId"/>
+		<result column="mbr_pw" 		property="memberPw"/>
+		<result column="mbr_name" 		property="memberName"/>
+		<result column="mbr_grd" 		property="memberGrade"/>
+		<result column="mbr_addr" 		property="memberAddress"/>
+		<result column="mbr_daddr" 		property="memberDetailAddress"/>
+		<result column="mbr_zip" 		property="memberZip"/>
+		<result column="mbr_telno" 		property="memberTelNo"/>
+		<result column="mbr_email" 		property="memberEmail"/>
+		<result column="mbr_reg_date" 	property="memberRegDate"/>
+	</resultMap>
+	
+	<!-- 프로시저 호출은 select 태그 -->
+	<select id="callRemoveMember" statementType="CALLABLE">
+		{CALL sp_delete_id_status(
+				#{memberId, mode=IN, jdbcType=VARCHAR},
+				#{status.isDel, mode=OUT, jdbcType=BOOLEAN, javaType=java.lang.Boolean}
+		)}
+	</select>
+	
+	<update id="modifyMember" parameterType="mybatis.member.domain.Member">
+		/* 회원수정 */
+		UPDATE members
+		<set>
+			<if test="memberPw != null and memberPw != ''">			
+				  mbr_pw = #{memberPw}
+			</if>
+			<if test="memberName != null and memberName != ''">			
+				, mbr_name = #{memberName}
+			</if>
+			<if test="memberGrade != null and memberGrade != ''">			
+				, mbr_grd = #{memberGrade}
+			</if>
+			<if test="memberAddress != null and memberAddress != ''">			
+				, mbr_addr = #{memberAddress}
+			</if>
+			<if test="memberDetailAddress != null and memberDetailAddress != ''">			
+				, mbr_daddr = #{memberDetailAddress}
+			</if>
+			<if test="memberZip != null and memberZip != ''">			
+				, mbr_zip = #{memberZip}
+			</if>
+			<if test="memberTelNo != null and memberTelNo != ''">			
+				, mbr_telno = #{memberTelNo}
+			</if>
+			<if test="memberEmail != null and memberEmail != ''">			
+				, mbr_email = #{memberEmail}
+			</if>
+		</set>
+		WHERE 
+			mbr_id = #{memberId};
+	</update>
+	
+	<select id="findById" parameterType="String" resultMap="memberResultMap">
+		/* 특정회원 조회 */
+		SELECT 
+			  mbr_id
+			, mbr_pw
+			, mbr_name
+			, mbr_grd
+			, mbr_addr
+			, mbr_daddr
+			, mbr_zip
+			, mbr_telno
+			, mbr_email
+			, mbr_reg_date
+		FROM 
+			members
+		WHERE
+			mbr_id = #{memberId};
+	</select>
+
+	<insert id="addMember" parameterType="mybatis.member.domain.Member">
+		/* 회원 등록 */
+		INSERT INTO members(   
+		    mbr_id
+		  , mbr_pw
+		  , mbr_name
+		  , mbr_grd
+		  , mbr_addr
+		  , mbr_daddr
+		  , mbr_zip
+		  , mbr_telno
+		  , mbr_email
+		  , mbr_reg_date
+		) VALUES (
+		    #{memberId}
+		  , #{memberPw}
+		  , #{memberName}
+		  , #{memberGrade}
+		  , #{memberAddress}
+		  , #{memberDetailAddress}
+		  , #{memberZip} 
+		  , #{memberTelNo}
+		  , #{memberEmail}
+		  , CURDATE()
+		);
+	</insert>
+	
+	<select id="checkMemberById" parameterType="String" resultType="boolean">
+		/* 아이디 중복 체크 */
+		SELECT
+			count(*)
+		FROM 
+			members m 
+		WHERE 
+			m.mbr_id = #{memberId};
+	</select>
+
+	<select id="findAll" resultType="mybatis.member.domain.Member">
+		/* 회원 목록 조회 */
+		SELECT 
+			  mbr_id 		AS memberId
+			, mbr_pw		AS memberPw
+			, mbr_name		AS memberName
+			, mbr_grd		AS memberGrade
+			, mbr_addr		AS memberAddress
+			, mbr_daddr		AS memberDetailAddress
+			, mbr_zip		AS memberZip
+			, mbr_telno		AS memberTelNo
+			, mbr_email		AS memberEmail
+			, mbr_reg_date	AS memberRegDate
+		FROM 
+			members;
+	</select>
+</mapper>

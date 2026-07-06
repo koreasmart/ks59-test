@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.product.mapper.ProductMapper">
+	<resultMap type="mybatis.product.domain.Product" id="productResultMap">
+		<id 	column="prod_cd" 		property="productCode"/>
+		<result column="vend_cd" 		property="vendorCode"/>
+		<result column="prod_name" 		property="productName"/>
+		<result column="prod_untprc" 	property="productUnitPrice"/>
+		<result column="prod_reg_date" 	property="productRegDate"/>
+	</resultMap>
+	
+	<delete id="deleteProductByProductCode">
+		/* 상품 삭제 */
+		DELETE
+			p
+		FROM 
+			products p 
+		WHERE 
+			p.prod_cd = #{productCode};
+	</delete>
+	
+	<update id="modifyProduct">
+		/* 상품정보수정 */
+		UPDATE products
+		<set>
+			<if test="product.vendorCode != null and product.vendorCode != ''">
+			  	  vend_cd = #{product.vendorCode}
+			</if>
+			<if test="product.productName != null and product.productName != ''">
+				, prod_name = #{product.productName}
+			</if>
+			<if test="product.productUnitPrice != null and product.productUnitPrice != ''">
+				, prod_untprc = #{product.productUnitPrice}
+			</if>
+		</set> 
+		WHERE 
+			prod_cd = #{productCode};
+	</update>
+	
+	<select id="findByCode" parameterType="string" resultMap="productResultMap">
+		/* 상품 정보 조회 */
+		SELECT 
+			  prod_cd
+			, vend_cd
+			, prod_name
+			, prod_untprc
+			, prod_reg_date
+		FROM 
+			products
+		WHERE
+			prod_cd = #{productCode};
+	</select>
+	
+	<insert id="addProduct" parameterType="mybatis.product.domain.Product">
+		<selectKey keyColumn="newCode" keyProperty="productCode" order="BEFORE" resultType="String">
+			/* 상품 자동 증가 코드 */
+			SELECT 
+				CASE 
+				WHEN count(*) = 0 THEN 'prod_1'
+				ELSE
+					CONCAT(
+						 'prod_'
+						,MAX(CAST(SUBSTRING_INDEX(p.prod_cd, 'prod_', -1) AS UNSIGNED)) + 1
+					)
+				END AS newCode
+			FROM 
+				products p
+		</selectKey>
+		/* 상품등록 */
+		INSERT INTO products(
+			  prod_cd
+			, vend_cd
+			, prod_name
+			, prod_untprc
+			, prod_reg_date
+		) VALUES (
+			  #{productCode}
+			, #{vendorCode}
+			, #{productName}
+			, #{productUnitPrice}
+			, CURDATE()
+		);
+	</insert>
+
+	<select id="findAll" resultType="mybatis.product.domain.Product">
+		/* 상품 목록 조회 */
+		SELECT 
+			  prod_cd			AS productCode
+			, vend_cd 			AS vendorCode
+			, prod_name 		AS productName
+			, prod_untprc 		AS productUnitPrice
+			, prod_reg_date 	AS productRegDate
+		FROM 
+			products;
+	</select>
+</mapper>
